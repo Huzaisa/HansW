@@ -1,7 +1,6 @@
 const prisma = require('../models/prismaClient');
 const bcrypt = require('bcrypt');
 const { deleteFile } = require('../utils/fileUtils');
-
 const jwtUtils = require('../utils/jwtUtils');
 
 exports.login = async (req, res) => {
