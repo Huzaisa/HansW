@@ -1,0 +1,96 @@
+.menu-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px;
+  background-color: #121212;
+  margin-top: -50px;
+  position: relative;
+}
+
+
+.search-bar {
+  position: absolute;
+  top: -50px;
+  right: 20px;
+  background-color: rgba(255, 255, 255, 0.8);
+  padding: 8px 15px;
+  border-radius: 30px;
+}
+
+.search-bar input {
+  border: none;
+  padding: 10px;
+  width: 200px;
+  border-radius: 20px;
+  font-size: 16px;
+}
+
+.menu-card {
+  display: flex;
+  flex-direction: row;
+  background-color: #ffffff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.menu-image img {
+  width: 300px;
+  height: auto;
+  object-fit: cover;
+}
+
+.menu-details {
+  flex: 1;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.menu-details h3 {
+  font-size: 24px;
+  font-weight: bold;
+  margin: 0;
+  color: black;
+}
+
+.menu-details p {
+  font-size: 16px;
+  font-weight: bold;
+  margin: 10px 0;
+  color: black;
+}
+
+.menu-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.menu-price {
+  font-size: 18px;
+  font-weight: bold;
+  color: #121212;
+  margin-top: -400px;
+  margin-left: 600px;
+}
+
+.menu-add {
+  background-color: #ff0000;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  color: #fff;
+  font-size: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.menu-add:hover {
+  background-color: #cc0000;
+}

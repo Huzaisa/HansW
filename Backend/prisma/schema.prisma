@@ -1,0 +1,80 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          Int      @id @default(autoincrement())
+  username    String   @unique
+  password    String
+  fullName    String
+  phoneNumber String
+  role        Role     @default(MANAGER)
+  photo       String? // Foto profil
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  galleries     Gallery[]
+  menus         Menu[]
+  homePageItems HomePageItem[]
+}
+
+model HomePageItem {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  imageUrl    String
+  link        String
+  discount    Float? // Diskon
+  bestSellers Json? // Best sellers
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+model Menu {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String
+  price       Float
+  imageUrl    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+model Gallery {
+  id        Int      @id @default(autoincrement())
+  name      String
+  eventDate DateTime
+  images    Json // Array of image URLs
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model About {
+  id        Int      @id @default(autoincrement())
+  type      Type
+  content   String // Isi konten masing-masing
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum Role {
+  ADMIN
+  MANAGER
+}
+
+enum Type {
+  VISI
+  MISI
+  BACKGROUND
+}
