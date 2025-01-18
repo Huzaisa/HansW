@@ -9,6 +9,11 @@ router.post(
     '/add',
     authenticate(['ADMIN', 'MANAGER']),
     upload.array('images', 5), // Maksimal 5 gambar per galeri
+    (req, res, next) => {
+        console.log('Files:', req.files);
+        console.log('Body:', req.body);
+        next();
+    },
     galleryController.add
 );
 router.put(
