@@ -8,7 +8,13 @@ exports.getAll = async (req, res) => {
 
 exports.add = async (req, res) => {
     const { name, description, price } = req.body;
-    const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
+
+    // Only allow one file to be uploaded
+    if (!req.file) {
+        return res.status(400).json({ error: 'Please upload an image for the menu.' });
+    }
+
+    const imageUrl = `/uploads/${req.file.filename}`;
 
     const newMenu = await prisma.menu.create({
         data: {
@@ -21,6 +27,7 @@ exports.add = async (req, res) => {
     });
     res.status(201).json(newMenu);
 };
+
 
 exports.edit = async (req, res) => {
     const { id } = req.params;

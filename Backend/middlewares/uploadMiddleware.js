@@ -2,7 +2,7 @@ const multer = require('multer');
 const path = require('path');
 
 const storage = multer.diskStorage({
-    destination: 'uploads/',
+    destination: path.join(__dirname, '../public/uploads'),
     filename: (req, file, cb) => {
         const uniqueName = `${Date.now()}-${file.originalname}`;
         cb(null, uniqueName);
@@ -17,6 +17,9 @@ const fileFilter = (req, file, cb) => {
     }
 };
 
-const upload = multer({ storage, fileFilter });
+// Limit the number of files uploaded
+const limits = { fileSize: 5 * 1024 * 1024 }; // Max 2MB per file
+
+const upload = multer({ storage, fileFilter, limits });
 
 module.exports = upload;

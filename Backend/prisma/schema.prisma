@@ -8,19 +8,18 @@ datasource db {
 }
 
 model User {
-  id          Int      @id @default(autoincrement())
-  username    String   @unique
-  password    String
-  fullName    String
-  phoneNumber String
-  role        Role     @default(MANAGER)
-  photo       String? // Foto profil
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
+  id            Int            @id @default(autoincrement())
+  username      String         @unique
+  password      String
+  fullName      String
+  phoneNumber   String
+  role          Role           @default(MANAGER)
+  photo         String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
   galleries     Gallery[]
-  menus         Menu[]
   homePageItems HomePageItem[]
+  menus         Menu[]
 }
 
 model HomePageItem {
@@ -29,8 +28,8 @@ model HomePageItem {
   description String
   imageUrl    String
   link        String
-  discount    Float? // Diskon
-  bestSellers Json? // Best sellers
+  discount    Float?
+  bestSellers Json?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   userId      Int
@@ -42,10 +41,10 @@ model Menu {
   name        String
   description String
   price       Float
-  imageUrl    String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   userId      Int
+  imageUrl    String[]
   user        User     @relation(fields: [userId], references: [id])
 }
 
@@ -53,19 +52,19 @@ model Gallery {
   id        Int      @id @default(autoincrement())
   name      String
   eventDate DateTime
-  images    Json // Array of image URLs
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   userId    Int
+  images    String[]
   user      User     @relation(fields: [userId], references: [id])
 }
 
 model About {
   id        Int      @id @default(autoincrement())
-  type      Type
-  content   String // Isi konten masing-masing
+  content   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  type      Type
 }
 
 enum Role {

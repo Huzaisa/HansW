@@ -7,13 +7,28 @@ const homePageItemRoutes = require('./routes/homePageItemRoutes.js');
 const menuRoutes = require('./routes/menuRoutes');
 const accountRoutes = require('./routes/accountRoutes');
 const { errorHandler } = require('./utils/errorHandler');
+const path = require('path');
+
 const cors = require('cors');
 
 const app = express();
 
-app.use(cors());
+// CORS configuration
+app.use(cors({
+    origin: "http://localhost:5173", // Alamat FE
+    methods: ["GET"], // Batasi metode hanya untuk GET
+}));
+
+// Middleware
 app.use(bodyParser.json());
-app.use('/uploads', express.static('uploads')); // Serve static files
+
+// Serve static files from the 'uploads' folder
+app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
+
+app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "../Frontend/public"));
+});
+
 
 // Routes
 app.use('/about', aboutRoutes);

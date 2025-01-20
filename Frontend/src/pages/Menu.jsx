@@ -1,15 +1,42 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Container, Row, Col, InputGroup, Form } from "react-bootstrap";
-import { menuItems } from "../data/index.js";
-import Group6 from "../assets/Group-6.png"
+import Group6 from "../assets/Group-6.png";
 
 const Menu = () => {
+  const [menuItems, setMenuItems] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Fetch menuItems dari backend
+  useEffect(() => {
+    const fetchMenuItems = async () => {
+      try {
+        const response = await fetch("http://localhost:5000"); // Gantilah URL dengan endpoint yang sesuai
+        const data = await response.json();
+        setMenuItems(data);
+        setIsLoading(false);
+      } catch (error) {
+        setError("Failed to fetch menu items");
+        setIsLoading(false);
+      }
+    };
+
+    fetchMenuItems();
+  }, []);
 
   // Filter menuItems berdasarkan searchTerm
   const filteredMenuItems = menuItems.filter((menu) =>
     menu.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  if (isLoading) {
+    return <p>Loading menu items...</p>;
+  }
+
+  if (error) {
+    return <p>{error}</p>;
+  }
 
   return (
     <div className="menu-page">
@@ -35,7 +62,7 @@ const Menu = () => {
                     <img className="menu-image" src={menu.image} alt="gambar menu" />
                   </Col>
                   <Col className="menu-details">
-                    <h3 className="menu-title">{menu.title}</h3>
+                    <h3 className="menu-title">{menu.name}</h3>
                     <p className="menu-description">{menu.description}</p>
                     <div className="menu-footer">
                       <div className="menu-price">Rp. {menu.price}</div>
@@ -46,7 +73,7 @@ const Menu = () => {
             })}
           </Row>
           <Col>
-          <img className="bg-img" src={Group6} alt="group6" />
+            <img className="bg-img" src={Group6} alt="group6" />
           </Col>
         </Container>
       </div>

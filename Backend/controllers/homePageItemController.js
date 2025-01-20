@@ -1,51 +1,54 @@
+// menuController.js
 const prisma = require('../models/prismaClient');
 const { deleteFile } = require('../utils/fileUtils');
 
 exports.getAll = async (req, res) => {
-    const items = await prisma.homePageItem.findMany();
-    res.json(items);
+    const menus = await prisma.menu.findMany();
+    res.json(menus);
 };
 
 exports.add = async (req, res) => {
-    const { title, description, link, discount, bestSellers } = req.body;
-    const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
+    const { name, description, price } = req.body;
+    const images = req.files ? req.files.map(file => `/uploads/${file.filename}`) : [];
 
-    const newItem = await prisma.homePageItem.create({
+    const newMenu = await prisma.menu.create({
         data: {
-            title,
+            name,
             description,
-            link,
-            discount: discount ? parseFloat(discount) : null,
-            bestSellers: bestSellers ? JSON.parse(bestSellers) : null,
-            imageUrl,
+            price: parseFloat(price),
+            images, // Menyimpan array gambar
             userId: req.user.id,
         },
     });
-    res.status(201).json(newItem);
+    res.status(201).json(newMenu);
 };
 
 exports.edit = async (req, res) => {
     const { id } = req.params;
-    const { title, description, link, discount, bestSellers } = req.body;
+    const { name, description, price } = req.body;
 
-    const oldItem = await prisma.homePageItem.findUnique({ where: { id: parseInt(id) } });
-    if (req.file && oldItem.imageUrl) deleteFile(`./uploads${oldItem.imageUrl}`);
+    const oldMenu = await prisma.menu.findUnique({ where: { id: parseInt(id) } });
+    if (req.files && oldMenu.images) {
+        oldMenu.images.forEach(image => deleteFile(`./uploads${image}`)); // Menghapus gambar lama
+    }
 
-    const imageUrl = req.file ? `/uploads/${req.file.filename}` : oldItem.imageUrl;
+    const images = req.files ? req.files.map(file => `/uploads/${file.filename}`) : oldMenu.images;
 
-    const updatedItem = await prisma.homePageItem.update({
+    const updatedMenu = await prisma.menu.update({
         where: { id: parseInt(id) },
-        data: { title, description, link, discount, bestSellers, imageUrl },
+        data: { name, description, price: parseFloat(price), images },
     });
-    res.json(updatedItem);
+    res.json(updatedMenu);
 };
 
 exports.delete = async (req, res) => {
     const { id } = req.params;
-    const item = await prisma.homePageItem.findUnique({ where: { id: parseInt(id) } });
+    const menu = await prisma.menu.findUnique({ where: { id: parseInt(id) } });
 
-    if (item.imageUrl) deleteFile(`./uploads${item.imageUrl}`);
+    if (menu.images) {
+        menu.images.forEach(image => deleteFile(`./uploads${image}`)); // Menghapus gambar
+    }
 
-    await prisma.homePageItem.delete({ where: { id: parseInt(id) } });
+    await prisma.menu.delete({ where: { id: parseInt(id) } });
     res.status(204).send();
 };

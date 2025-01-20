@@ -29,6 +29,7 @@ exports.login = async (req, res) => {
                 username: user.username,
                 fullName: user.fullName,
                 role: user.role,
+                photos: user.photos, // Mengirimkan array gambar (photos)
             },
         });
     } catch (error) {
@@ -44,7 +45,7 @@ exports.getAll = async (req, res) => {
 exports.add = async (req, res) => {
     const { username, password, fullName, phoneNumber, role } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
-    const photo = req.file ? `/uploads/${req.file.filename}` : null;
+    const photos = req.files ? req.files.map(file => `/uploads/${file.filename}`) : [];
 
     const newUser = await prisma.user.create({
         data: {
@@ -53,7 +54,7 @@ exports.add = async (req, res) => {
             fullName,
             phoneNumber,
             role,
-            photo,
+            photos, // Menyimpan array gambar
         },
     });
     res.status(201).json(newUser);
@@ -65,9 +66,11 @@ exports.edit = async (req, res) => {
     const hashedPassword = password ? await bcrypt.hash(password, 10) : undefined;
 
     const oldUser = await prisma.user.findUnique({ where: { id: parseInt(id) } });
-    if (req.file && oldUser.photo) deleteFile(`./uploads${oldUser.photo}`);
+    if (req.files && oldUser.photos) {
+        oldUser.photos.forEach(photo => deleteFile(`./uploads${photo}`)); // Menghapus foto lama
+    }
 
-    const photo = req.file ? `/uploads/${req.file.filename}` : oldUser.photo;
+    const photos = req.files ? req.files.map(file => `/uploads/${file.filename}`) : oldUser.photos;
 
     const updatedUser = await prisma.user.update({
         where: { id: parseInt(id) },
@@ -77,7 +80,7 @@ exports.edit = async (req, res) => {
             fullName,
             phoneNumber,
             role,
-            photo,
+            photos, // Menyimpan array gambar
         },
     });
     res.json(updatedUser);
@@ -87,7 +90,9 @@ exports.delete = async (req, res) => {
     const { id } = req.params;
     const user = await prisma.user.findUnique({ where: { id: parseInt(id) } });
 
-    if (user.photo) deleteFile(`./uploads${user.photo}`);
+    if (user.photos) {
+        user.photos.forEach(photo => deleteFile(`./uploads${photo}`)); // Menghapus foto
+    }
 
     await prisma.user.delete({ where: { id: parseInt(id) } });
     res.status(204).send();

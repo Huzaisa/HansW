@@ -14,7 +14,7 @@ exports.add = async (req, res) => {
         data: {
             name,
             eventDate: new Date(eventDate),
-            images: JSON.stringify(imageUrls),
+            images: imageUrls, // Simpan array URL gambar
             userId: req.user.id,
         },
     });
@@ -28,22 +28,22 @@ exports.edit = async (req, res) => {
     // Get the existing gallery
     const oldGallery = await prisma.gallery.findUnique({ where: { id: parseInt(id) } });
 
-    // Delete old images if new ones are uploaded
-    if (req.files && oldGallery.images) {
-        const oldImages = JSON.parse(oldGallery.images);
-        oldImages.forEach((image) => deleteFile(`./uploads${image}`));
-    }
+        // Hapus gambar lama jika ada gambar baru yang diunggah
+        if (req.files && oldGallery.images.length) {
+            oldGallery.images.forEach((image) => deleteFile(`./uploads${image}`));
+        }
 
-    const newImages = req.files.map((file) => `/uploads/${file.filename}`);
-    const updatedGallery = await prisma.gallery.update({
-        where: { id: parseInt(id) },
-        data: {
-            name,
-            eventDate: new Date(eventDate),
-            images: JSON.stringify(newImages.length ? newImages : JSON.parse(oldGallery.images)),
-        },
-    });
-    res.json(updatedGallery);
+        const newImages = req.files.map((file) => `/uploads/${file.filename}`);
+
+        const updatedGallery = await prisma.gallery.update({
+            where: { id: parseInt(id) },
+            data: {
+                name,
+                eventDate: new Date(eventDate),
+                images: newImages.length ? newImages : oldGallery.images,
+            },
+        });
+        res.json(updatedGallery);
 };
 
 exports.delete = async (req, res) => {
@@ -51,11 +51,12 @@ exports.delete = async (req, res) => {
 
     // Find and delete associated images
     const gallery = await prisma.gallery.findUnique({ where: { id: parseInt(id) } });
-    if (gallery.images) {
-        const images = JSON.parse(gallery.images);
-        images.forEach((image) => deleteFile(`./uploads${image}`));
-    }
 
-    await prisma.gallery.delete({ where: { id: parseInt(id) } });
-    res.status(204).send();
+        // Hapus gambar terkait
+        if (gallery.images.length) {
+            gallery.images.forEach((image) => deleteFile(`./uploads${image}`));
+        }
+
+        await prisma.gallery.delete({ where: { id: parseInt(id) } });
+        res.status(204).send();
 };
