@@ -4,36 +4,21 @@ import Group4 from "../assets/Group-4.png";
 import Group3 from "../assets/Group-3.png";
 
 const Home = () => {
-  // State untuk menyimpan data menu dan keunggulan
-  const [bestMenu, setBestMenu] = useState([]);
-  const [bestMenu2, setBestMenu2] = useState([]);
-  const [keunggulan, setKeunggulan] = useState([]);
+  const [homePageItems, setHomePageItems] = useState([]);
 
-  // Mengambil data menggunakan fetch API
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch data menu pertama
-        const responseMenu = await fetch("http://localhost:5000/bestmenu");
-        const dataMenu = await responseMenu.json();
-        setBestMenu(dataMenu);
-
-        // Fetch data menu kedua
-        const responseMenu2 = await fetch("http://localhost:5000/bestmenu2");
-        const dataMenu2 = await responseMenu2.json();
-        setBestMenu2(dataMenu2);
-
-        // Fetch data keunggulan
-        const responseKeunggulan = await fetch("http://localhost:5000/keunggulan");
-        const dataKeunggulan = await responseKeunggulan.json();
-        setKeunggulan(dataKeunggulan);
+        const response = await fetch("http://localhost:5000/homePageItems");
+        const data = await response.json();
+        setHomePageItems(data);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
 
     fetchData();
-  }, []); // Empty array untuk memastikan hanya sekali fetch saat pertama kali render
+  }, []);
 
   return (
     <div className="homepage">
@@ -61,39 +46,57 @@ const Home = () => {
         </Container>
       </header>
 
-      <Row className="best-seller w-100 min-vh-100 d-flex">
-        <h1>Best Seller</h1>
-        <Col className="list-menu1">
-          {bestMenu.length > 0 ? (
-            bestMenu.map((menu) => (
-              <p key={menu.id}>{menu.name}</p>
-            ))
-          ) : (
-            <p>Loading best seller menu...</p>
-          )}
-        </Col>
-        <Col className="list-menu2">
-          {bestMenu2.length > 0 ? (
-            bestMenu2.map((menu2) => (
-              <p key={menu2.id}>{menu2.name}</p>
-            ))
-          ) : (
-            <p>Loading second menu...</p>
-          )}
-        </Col>
-      </Row>
-
-      <Row className="keunggulan-box w-100 min-vh-100 d-flex">
-        <h1 className="text-center my-3">Keunggulan</h1>
-        {keunggulan.length > 0 ? (
-          keunggulan.map((item, index) => (
-            <Col key={index} className="teks-keunggulan">
-              <h2>{item.title}</h2>
+      <Row className="w-100 min-vh-100 d-flex justify-content-center text-center">
+        {homePageItems.length > 0 ? (
+          homePageItems.map((item) => (
+            <Col key={item.id} md={12} className="list-menu1 mb-4">
+              <h1>{item.title}</h1>
               <p>{item.description}</p>
+
+              {item.discount && (
+                <p style={{ color: "red" }}>
+                  Discount: {item.discount}% off
+                </p>
+              )}
+
+              {item.bestSellers && item.bestSellers.length > 0 && (
+                <div>
+                  <h2>Best Sellers:</h2>
+                  <Row className="justify-content-center">
+                    <Col md={6} className="text-center">
+                      <ul className="list-items">
+                        {item.bestSellers.slice(0, Math.ceil(item.bestSellers.length / 2)).map((bestSeller, index) => (
+                          <li key={index} className="list-item">
+                            {bestSeller}
+                          </li>
+                        ))}
+                      </ul>
+                    </Col>
+                    <Col md={6} className="text-center">
+                      <ul className="list-items">
+                        {item.bestSellers.slice(Math.ceil(item.bestSellers.length / 2)).map((bestSeller, index) => (
+                          <li key={index} className="list-item">
+                            {bestSeller}
+                          </li>
+                        ))}
+                      </ul>
+                    </Col>
+                  </Row>
+                </div>
+              )}
+
+              {/* New section: Keunggulan */}
+              <div className="keunggulan-section mt-4">
+                <h1>Keunggulan</h1>
+                <p>
+                  Harga yang sangat terjangkau, kenyamanan tempat, serta rasa yang tidak bisa dilupakan. 
+                  Kami juga menyediakan berbagai varian makanan yang sangat beragam untuk dinikmati oleh semua pengunjung.
+                </p>
+              </div>
             </Col>
           ))
         ) : (
-          <p>Loading advantages...</p>
+          <p>Loading home page items...</p>
         )}
       </Row>
     </div>

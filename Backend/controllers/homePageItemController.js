@@ -1,54 +1,59 @@
-// menuController.js
 const prisma = require('../models/prismaClient');
-const { deleteFile } = require('../utils/fileUtils');
 
+// Get all HomePageItems
 exports.getAll = async (req, res) => {
-    const menus = await prisma.menu.findMany();
-    res.json(menus);
+    const homePageItems = await prisma.homePageItem.findMany();
+    res.json(homePageItems);
 };
 
+// Add a new HomePageItem
 exports.add = async (req, res) => {
-    const { name, description, price } = req.body;
-    const images = req.files ? req.files.map(file => `/uploads/${file.filename}`) : [];
+    const { title, description, discount, bestSellers } = req.body;
 
-    const newMenu = await prisma.menu.create({
+    // Ensure that bestSellers is an array of strings and handle the discount properly
+    const newHomePageItem = await prisma.homePageItem.create({
         data: {
-            name,
+            title,
             description,
-            price: parseFloat(price),
-            images, // Menyimpan array gambar
+            discount: discount ? parseFloat(discount) : null, // Only add discount if provided
+            bestSellers: Array.isArray(bestSellers) ? bestSellers : [], // Ensure bestSellers is an array
             userId: req.user.id,
         },
     });
-    res.status(201).json(newMenu);
+
+    res.status(201).json(newHomePageItem);
 };
 
+// Edit an existing HomePageItem
 exports.edit = async (req, res) => {
     const { id } = req.params;
-    const { name, description, price } = req.body;
+    const { title, description, discount, bestSellers } = req.body;
 
-    const oldMenu = await prisma.menu.findUnique({ where: { id: parseInt(id) } });
-    if (req.files && oldMenu.images) {
-        oldMenu.images.forEach(image => deleteFile(`./uploads${image}`)); // Menghapus gambar lama
-    }
-
-    const images = req.files ? req.files.map(file => `/uploads/${file.filename}`) : oldMenu.images;
-
-    const updatedMenu = await prisma.menu.update({
-        where: { id: parseInt(id) },
-        data: { name, description, price: parseFloat(price), images },
+    // Find the existing HomePageItem
+    const oldHomePageItem = await prisma.homePageItem.findUnique({
+        where: { id: parseInt(id) }
     });
-    res.json(updatedMenu);
+
+    // Update the HomePageItem with provided fields (only change what is necessary)
+    const updatedHomePageItem = await prisma.homePageItem.update({
+        where: { id: parseInt(id) },
+        data: {
+            title,
+            description,
+            discount: discount ? parseFloat(discount) : oldHomePageItem.discount, // Keep old discount if not provided
+            bestSellers: Array.isArray(bestSellers) ? bestSellers : oldHomePageItem.bestSellers, // Keep old bestSellers if not provided
+        },
+    });
+
+    res.json(updatedHomePageItem);
 };
 
+// Delete a HomePageItem
 exports.delete = async (req, res) => {
     const { id } = req.params;
-    const menu = await prisma.menu.findUnique({ where: { id: parseInt(id) } });
+    // Ensure you're deleting HomePageItem instead of Menu
+    const homePageItem = await prisma.homePageItem.findUnique({ where: { id: parseInt(id) } });
 
-    if (menu.images) {
-        menu.images.forEach(image => deleteFile(`./uploads${image}`)); // Menghapus gambar
-    }
-
-    await prisma.menu.delete({ where: { id: parseInt(id) } });
+    await prisma.homePageItem.delete({ where: { id: parseInt(id) } });
     res.status(204).send();
 };

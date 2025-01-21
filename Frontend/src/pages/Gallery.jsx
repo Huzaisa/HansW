@@ -37,18 +37,21 @@ const Gallery = () => {
                 <div className="gallery-item">
                   <p>{galeri.name}</p>
                   <p>{galeri.eventDate}</p>
-                  {images.length > 0 ? (
-                    images.map((image, index) => (
-                      <img
-                        key={index}
-                        className={`gallery-image image-${index + 1}`}
-                        src={`http://localhost:5000${image}`}
-                        alt={`Archive event ${index + 1}`}
-                      />
-                    ))
-                  ) : (
-                    <p>No images available for this gallery.</p>
-                  )}
+                  <div className="gallery-images-wrapper">
+                    {images.length > 0 ? (
+                      images.map((image, index) => (
+                        <div className="image-container" key={index}>
+                          <img
+                            className={`gallery-image image-${index + 1}`}
+                            src={`http://localhost:5000${image}`}
+                            alt={`Archive event ${index + 1}`}
+                          />
+                        </div>
+                      ))
+                    ) : (
+                      <p>No images available for this gallery.</p>
+                    )}
+                  </div>
                 </div>
               </Col>
             );

@@ -21,13 +21,12 @@ exports.add = async (req, res) => {
             name,
             description,
             price: parseFloat(price),
-            imageUrl,
+            imageUrl,  // Hanya satu string untuk imageUrl
             userId: req.user.id,
         },
     });
     res.status(201).json(newMenu);
 };
-
 
 exports.edit = async (req, res) => {
     const { id } = req.params;
